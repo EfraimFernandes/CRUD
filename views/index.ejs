@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuários</title>
+    <style>
+        /* Estilos para o corpo da página */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Estilos para o cabeçalho */
+        h1 {
+            text-align: center; /* Centraliza o título */
+            margin-top: 20px;
+            color: #333;
+        }
+
+        /* Estilos para o botão de adicionar usuário */
+        #btnAddUser {
+            display: block; /* Transforma o botão em bloco */
+            margin: 0 auto; /* Centraliza horizontalmente */
+        }
+
+        /* Estilos para os botões */
+        .btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* Estilos para a tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        /* Estilos para os botões de ação na tabela */
+        .btnAction {
+            margin-right: 5px;
+        }
+
+        /* Estilos para os modais */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 5px;
+            width: 60%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Estilos para os formulários nos modais */
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        /* Estilos para os botões de ação nos modais */
+        .modal-buttons {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .modal-buttons button {
+            margin-left: 10px;
+        }
+    </style> 
+</head>
+<body>
+    <h1>Lista de Usuários</h1>
+    <button class="btn" id="btnAddUser">Adicionar Usuário</button>
+    <table>
+        <tr>
+            <th>Nome</th>
+            <th>Idade</th>
+            <th>Email</th>
+            <th>Ações</th>
+        </tr>
+        <% usuarios.forEach(usuario => { %>
+            <tr>
+                <td><%= usuario.nome %></td>
+                <td><%= usuario.idade %></td>
+                <td><%= usuario.email %></td>
+                <td>
+                    <button class="btn btnEdit" data-id="<%= usuario.rowid %>" data-nome="<%= usuario.nome %>" data-idade="<%= usuario.idade %>" data-email="<%= usuario.email %>">Editar</button>
+                    <button class="btn btnDelete" data-id="<%= usuario.rowid %>">Deletar</button>
+                </td>
+            </tr>
+        <% }); %>
+    </table>
+
+    <!-- Modal para adicionar usuário -->
+    <div id="modalAddUser" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeAddUserModal">&times;</span>
+            <h2>Adicionar Usuário</h2>
+            <form action="/add" method="POST">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+                <br>
+                <label for="idade">Idade:</label>
+                <input type="number" id="idade" name="idade" required>
+                <br>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <br>
+                <button type="submit" class="btn">Adicionar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar usuário -->
+    <div id="modalEditUser" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeEditUserModal">&times;</span>
+            <h2>Editar Usuário</h2>
+            <form action="/update" method="POST">
+                <input type="hidden" id="editId" name="id">
+                <label for="editNome">Nome:</label>
+                <input type="text" id="editNome" name="nome" required>
+                <br>
+                <label for="editIdade">Idade:</label>
+                <input type="number" id="editIdade" name="idade" required>
+                <br>
+                <label for="editEmail">Email:</label>
+                <input type="email" id="editEmail" name="email" required>
+                <br>
+                <button type="submit" class="btn">Atualizar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para confirmar deleção -->
+    <div id="modalDeleteUser" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeDeleteUserModal">&times;</span>
+            <h2>Deletar Usuário</h2>
+            <p>Tem certeza que deseja deletar este usuário?</p>
+            <form action="/delete" method="POST">
+                <input type="hidden" id="deleteId" name="id">
+                <button type="submit" class="btn">Deletar</button>
+                <button type="button" class="btn" id="cancelDelete">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal Adicionar Usuário
+        const btnAddUser = document.getElementById('btnAddUser');
+        const modalAddUser = document.getElementById('modalAddUser');
+        const closeAddUserModal = document.getElementById('closeAddUserModal');
+        btnAddUser.onclick = () => { modalAddUser.style.display = 'block'; }
+        closeAddUserModal.onclick = () => { modalAddUser.style.display = 'none'; }
+
+        // Modal Editar Usuário
+        const btnEditUsers = document.querySelectorAll('.btnEdit');
+        const modalEditUser = document.getElementById('modalEditUser');
+        const closeEditUserModal = document.getElementById('closeEditUserModal');
+        btnEditUsers.forEach(btn => {
+            btn.onclick = () => {
+                modalEditUser.style.display = 'block';
+                document.getElementById('editId').value = btn.getAttribute('data-id');
+                document.getElementById('editNome').value = btn.getAttribute('data-nome');
+                document.getElementById('editIdade').value = btn.getAttribute('data-idade');
+                document.getElementById('editEmail').value = btn.getAttribute('data-email');
+            };
+        });
+        closeEditUserModal.onclick = () => { modalEditUser.style.display = 'none'; }
+
+        // Modal Deletar Usuário
+        const btnDeleteUsers = document.querySelectorAll('.btnDelete');
+        const modalDeleteUser = document.getElementById('modalDeleteUser');
+        const closeDeleteUserModal = document.getElementById('closeDeleteUserModal');
+        const cancelDelete = document.getElementById('cancelDelete');
+        btnDeleteUsers.forEach(btn => {
+            btn.onclick = () => {
+                modalDeleteUser.style.display = 'block';
+                document.getElementById('deleteId').value = btn.getAttribute('data-id');
+            };
+        });
+        closeDeleteUserModal.onclick = () => { modalDeleteUser.style.display = 'none'; }
+        cancelDelete.onclick = () => { modalDeleteUser.style.display = 'none'; }
+
+        // Fechar modais ao clicar fora deles
+        window.onclick = (event) => {
+            if (event.target == modalAddUser) {
+                modalAddUser.style.display = 'none';
+            }
+            if (event.target == modalEditUser) {
+                modalEditUser.style.display = 'none';
+            }
+            if (event.target == modalDeleteUser) {
+                modalDeleteUser.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
